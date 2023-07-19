@@ -23,6 +23,7 @@ module.exports.getUsers = (req, res) => {
 
 module.exports.getUser = (req, res) => {
   User.findById(req.params.userId)
+    .orFail()
     .then((user) => res.status(OK_STATUS_CODE).send(user))
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
@@ -65,7 +66,12 @@ module.exports.createUser = (req, res) => {
 
 module.exports.updateUserProfile = (req, res) => {
   const { name, about } = req.body;
-  User.findByIdAndUpdate(req.user._id, { name, about }, { new: true })
+  if (!name || !about) {
+    res.status(BAD_REQUEST_STATUS_CODE).send({ message: 'Произошла ошибка валидации переданных данных' });
+
+    return;
+  }
+  User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
     .then((user) => res.status(OK_STATUS_CODE).send(user))
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
@@ -80,13 +86,25 @@ module.exports.updateUserProfile = (req, res) => {
         return;
       }
 
+      if (err.name === 'ValidationError') {
+        res.status(BAD_REQUEST_STATUS_CODE).send({ message: 'Произошла ошибка валидации переданных данных' });
+
+        return;
+      }
+
       res.status(INTERNAL_SERVER_ERROR_STATUS_CODE).send({ message: 'Ошибка по умолчанию' });
     });
 };
 
 module.exports.updateUserAvatar = (req, res) => {
   const { avatar } = req.body;
-  User.findByIdAndUpdate(req.user._id, { avatar }, { new: true })
+  if (!avatar) {
+    res.status(BAD_REQUEST_STATUS_CODE).send({ message: 'Произошла ошибка валидации переданных данных' });
+
+    return;
+  }
+
+  User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
     .then((user) => res.status(OK_STATUS_CODE).send(user))
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
@@ -97,6 +115,12 @@ module.exports.updateUserAvatar = (req, res) => {
 
       if (err.name === 'CastError') {
         res.status(BAD_REQUEST_STATUS_CODE).send({ message: 'В запросе переданы некорректные данные' });
+
+        return;
+      }
+
+      if (err.name === 'ValidationError') {
+        res.status(BAD_REQUEST_STATUS_CODE).send({ message: 'Произошла ошибка валидации переданных данных' });
 
         return;
       }

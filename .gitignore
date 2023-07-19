@@ -13,6 +13,3 @@ node_modules
 .DS_Store
 .idea
 .vscode
-
-# VS Code plugin config
-.editorconfig

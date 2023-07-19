@@ -46,6 +46,7 @@ module.exports.createCard = (req, res) => {
 
 module.exports.deleteCard = (req, res) => {
   Card.findByIdAndDelete(req.params.cardId)
+    .orFail()
     .then((card) => res.status(OK_STATUS_CODE).send(card))
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
@@ -68,8 +69,9 @@ module.exports.addCardLike = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
-    { new: true }
+    { new: true, runValidators: true }
   )
+    .orFail()
     .then((card) => res.status(OK_STATUS_CODE).send(card))
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
@@ -92,8 +94,9 @@ module.exports.deleteCardLike = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
-    { new: true }
+    { new: true, runValidators: true }
   )
+    .orFail()
     .then((card) => res.status(OK_STATUS_CODE).send(card))
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
