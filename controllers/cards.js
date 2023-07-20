@@ -1,4 +1,8 @@
-const Card = require('../models/card');
+const {
+  DocumentNotFoundError,
+  CastError,
+  ValidationError
+} = require('mongoose').Error;
 const {
   OK_STATUS_CODE,
   CREATED_STATUS_CODE,
@@ -6,6 +10,7 @@ const {
   RESOURCE_NOT_FOUND_STATUS_CODE,
   INTERNAL_SERVER_ERROR_STATUS_CODE
 } = require('../utils/statusCodes');
+const Card = require('../models/card');
 
 module.exports.getCards = (req, res) => {
   Card.find({})
@@ -20,7 +25,7 @@ module.exports.createCard = (req, res) => {
   Card.create({ name, link, owner: ownerId })
     .then((card) => res.status(CREATED_STATUS_CODE).send(card))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err instanceof ValidationError) {
         res.status(BAD_REQUEST_STATUS_CODE).send({ message: 'Произошла ошибка валидации переданных данных' });
 
         return;
@@ -35,13 +40,13 @@ module.exports.deleteCard = (req, res) => {
     .orFail()
     .then((card) => res.status(OK_STATUS_CODE).send(card))
     .catch((err) => {
-      if (err.name === 'DocumentNotFoundError') {
+      if (err instanceof DocumentNotFoundError) {
         res.status(RESOURCE_NOT_FOUND_STATUS_CODE).send({ message: 'Карточка с указанным _id не найдена' });
 
         return;
       }
 
-      if (err.name === 'CastError') {
+      if (err instanceof CastError) {
         res.status(BAD_REQUEST_STATUS_CODE).send({ message: 'Переданы некорректные данные при удалении карточки' });
 
         return;
@@ -60,13 +65,13 @@ module.exports.addCardLike = (req, res) => {
     .orFail()
     .then((card) => res.status(OK_STATUS_CODE).send(card))
     .catch((err) => {
-      if (err.name === 'DocumentNotFoundError') {
+      if (err instanceof DocumentNotFoundError) {
         res.status(RESOURCE_NOT_FOUND_STATUS_CODE).send({ message: 'Передан несуществующий _id карточки' });
 
         return;
       }
 
-      if (err.name === 'CastError') {
+      if (err instanceof CastError) {
         res.status(BAD_REQUEST_STATUS_CODE).send({ message: 'Переданы некорректные данные для постановки лайка' });
 
         return;
@@ -85,13 +90,13 @@ module.exports.deleteCardLike = (req, res) => {
     .orFail()
     .then((card) => res.status(OK_STATUS_CODE).send(card))
     .catch((err) => {
-      if (err.name === 'DocumentNotFoundError') {
+      if (err instanceof DocumentNotFoundError) {
         res.status(RESOURCE_NOT_FOUND_STATUS_CODE).send({ message: 'Передан несуществующий _id карточки' });
 
         return;
       }
 
-      if (err.name === 'CastError') {
+      if (err instanceof CastError) {
         res.status(BAD_REQUEST_STATUS_CODE).send({ message: 'Переданы некорректные данные для снятия лайка' });
 
         return;

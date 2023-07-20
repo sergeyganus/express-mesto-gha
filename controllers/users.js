@@ -1,4 +1,8 @@
-const User = require('../models/user');
+const {
+  DocumentNotFoundError,
+  CastError,
+  ValidationError
+} = require('mongoose').Error;
 const {
   OK_STATUS_CODE,
   CREATED_STATUS_CODE,
@@ -6,6 +10,7 @@ const {
   RESOURCE_NOT_FOUND_STATUS_CODE,
   INTERNAL_SERVER_ERROR_STATUS_CODE
 } = require('../utils/statusCodes');
+const User = require('../models/user');
 
 module.exports.getUsers = (req, res) => {
   User.find({})
@@ -18,13 +23,13 @@ module.exports.getUser = (req, res) => {
     .orFail()
     .then((user) => res.status(OK_STATUS_CODE).send(user))
     .catch((err) => {
-      if (err.name === 'DocumentNotFoundError') {
+      if (err instanceof DocumentNotFoundError) {
         res.status(RESOURCE_NOT_FOUND_STATUS_CODE).send({ message: 'Пользователь по указанному _id не найден' });
 
         return;
       }
 
-      if (err.name === 'CastError') {
+      if (err instanceof CastError) {
         res.status(BAD_REQUEST_STATUS_CODE).send({ message: 'В запросе переданы некорректные данные' });
 
         return;
@@ -40,7 +45,7 @@ module.exports.createUser = (req, res) => {
   User.create({ name, about, avatar })
     .then((user) => res.status(CREATED_STATUS_CODE).send(user))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err instanceof ValidationError) {
         res.status(BAD_REQUEST_STATUS_CODE).send({ message: 'Произошла ошибка валидации переданных данных' });
 
         return;
@@ -57,13 +62,13 @@ module.exports.updateUserProfile = (req, res) => {
     .orFail()
     .then((user) => res.status(OK_STATUS_CODE).send(user))
     .catch((err) => {
-      if (err.name === 'DocumentNotFoundError') {
+      if (err instanceof DocumentNotFoundError) {
         res.status(RESOURCE_NOT_FOUND_STATUS_CODE).send({ message: 'Пользователь с указанным _id не найден' });
 
         return;
       }
 
-      if (err.name === 'ValidationError') {
+      if (err instanceof ValidationError) {
         res.status(BAD_REQUEST_STATUS_CODE).send({ message: 'Произошла ошибка валидации переданных данных' });
 
         return;
@@ -80,13 +85,13 @@ module.exports.updateUserAvatar = (req, res) => {
     .orFail()
     .then((user) => res.status(OK_STATUS_CODE).send(user))
     .catch((err) => {
-      if (err.name === 'DocumentNotFoundError') {
+      if (err instanceof DocumentNotFoundError) {
         res.status(RESOURCE_NOT_FOUND_STATUS_CODE).send({ message: 'Пользователь с данным идентификатором не найден' });
 
         return;
       }
 
-      if (err.name === 'ValidationError') {
+      if (err instanceof ValidationError) {
         res.status(BAD_REQUEST_STATUS_CODE).send({ message: 'Произошла ошибка валидации переданных данных' });
 
         return;
