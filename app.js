@@ -1,8 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const userRouter = require('./routes/users');
-const cardRouter = require('./routes/cards');
+const router = require('./routes/index');
 const { RESOURCE_NOT_FOUND_STATUS_CODE } = require('./utils/statusCodes');
 
 const { PORT = 3000 } = process.env;
@@ -21,8 +20,7 @@ app.use((req, res, next) => {
 
   next();
 });
-app.use('/users', userRouter);
-app.use('/cards', cardRouter);
+app.use(router);
 app.use('*', (req, res) => {
   res.status(RESOURCE_NOT_FOUND_STATUS_CODE).send({ message: 'Запрошенная страница не найдена' });
 });

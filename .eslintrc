@@ -15,14 +15,6 @@
         "arrays": "never",
         "objects": "never"
       }
-    ],
-    "no-console": [
-      "error",
-      {
-        "allow": [
-          "log"
-        ]
-      }
     ]
   }
 }
