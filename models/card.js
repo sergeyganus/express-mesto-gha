@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
-const validator = require('validator');
+
+const linkRegExp = /^((http|https):\/\/)?(www\.)?([A-Za-zА-Яа-я0-9]{1}[A-Za-zА-Яа-я0-9-]*\.?)*\.{1}[A-Za-zА-Яа-я0-9-]{2,8}(\/([\w#!:.?+=&%@!\-/])*)?/;
 
 const cardSchema = mongoose.Schema({
   name: {
@@ -12,7 +13,7 @@ const cardSchema = mongoose.Schema({
     type: String,
     required: [true, 'Поле name должно быть заполнено'],
     validate: {
-      validator: (url) => validator.isURL(url),
+      validator: (url) => linkRegExp.test(url),
       message: 'Некорректный адрес URL для поля link'
     }
   },
@@ -30,6 +31,12 @@ const cardSchema = mongoose.Schema({
     type: Date,
     default: Date.now
   }
-});
+}, { versionKey: false });
+
+cardSchema.statics.findCardById = function (cardId) {
+  return this.findById(cardId)
+    .orFail()
+    .then((card) => card);
+};
 
 module.exports = mongoose.model('card', cardSchema);

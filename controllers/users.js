@@ -1,102 +1,39 @@
-const {
-  DocumentNotFoundError,
-  CastError,
-  ValidationError
-} = require('mongoose').Error;
-const {
-  OK_STATUS_CODE,
-  CREATED_STATUS_CODE,
-  BAD_REQUEST_STATUS_CODE,
-  RESOURCE_NOT_FOUND_STATUS_CODE,
-  INTERNAL_SERVER_ERROR_STATUS_CODE
-} = require('../utils/statusCodes');
+const { OK_STATUS_CODE } = require('../utils/statusCodes');
 const User = require('../models/user');
 
-module.exports.getUsers = (req, res) => {
+module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.status(OK_STATUS_CODE).send(users))
-    .catch(() => res.status(INTERNAL_SERVER_ERROR_STATUS_CODE).send({ message: 'Ошибка по умолчанию' }));
+    .catch(next);
 };
 
-module.exports.getUser = (req, res) => {
+module.exports.getUser = (req, res, next) => {
   User.findById(req.params.userId)
     .orFail()
     .then((user) => res.status(OK_STATUS_CODE).send(user))
-    .catch((err) => {
-      if (err instanceof DocumentNotFoundError) {
-        res.status(RESOURCE_NOT_FOUND_STATUS_CODE).send({ message: 'Пользователь по указанному _id не найден' });
-
-        return;
-      }
-
-      if (err instanceof CastError) {
-        res.status(BAD_REQUEST_STATUS_CODE).send({ message: 'В запросе переданы некорректные данные' });
-
-        return;
-      }
-
-      res.status(INTERNAL_SERVER_ERROR_STATUS_CODE).send({ message: 'Ошибка по умолчанию' });
-    });
+    .catch(next);
 };
 
-module.exports.createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
-
-  User.create({ name, about, avatar })
-    .then((user) => res.status(CREATED_STATUS_CODE).send(user))
-    .catch((err) => {
-      if (err instanceof ValidationError) {
-        res.status(BAD_REQUEST_STATUS_CODE).send({ message: 'Произошла ошибка валидации переданных данных' });
-
-        return;
-      }
-
-      res.status(INTERNAL_SERVER_ERROR_STATUS_CODE).send({ message: 'Ошибка по умолчанию' });
-    });
+module.exports.getUserProfile = (req, res, next) => {
+  User.findById(req.user._id)
+    .then((user) => res.status(OK_STATUS_CODE).send(user))
+    .catch(next);
 };
 
-module.exports.updateUserProfile = (req, res) => {
+module.exports.updateUserProfile = (req, res, next) => {
   const { name, about } = req.body;
 
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
     .orFail()
     .then((user) => res.status(OK_STATUS_CODE).send(user))
-    .catch((err) => {
-      if (err instanceof DocumentNotFoundError) {
-        res.status(RESOURCE_NOT_FOUND_STATUS_CODE).send({ message: 'Пользователь с указанным _id не найден' });
-
-        return;
-      }
-
-      if (err instanceof ValidationError) {
-        res.status(BAD_REQUEST_STATUS_CODE).send({ message: 'Произошла ошибка валидации переданных данных' });
-
-        return;
-      }
-
-      res.status(INTERNAL_SERVER_ERROR_STATUS_CODE).send({ message: 'Ошибка по умолчанию' });
-    });
+    .catch(next);
 };
 
-module.exports.updateUserAvatar = (req, res) => {
+module.exports.updateUserAvatar = (req, res, next) => {
   const { avatar } = req.body;
 
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
     .orFail()
     .then((user) => res.status(OK_STATUS_CODE).send(user))
-    .catch((err) => {
-      if (err instanceof DocumentNotFoundError) {
-        res.status(RESOURCE_NOT_FOUND_STATUS_CODE).send({ message: 'Пользователь с данным идентификатором не найден' });
-
-        return;
-      }
-
-      if (err instanceof ValidationError) {
-        res.status(BAD_REQUEST_STATUS_CODE).send({ message: 'Произошла ошибка валидации переданных данных' });
-
-        return;
-      }
-
-      res.status(INTERNAL_SERVER_ERROR_STATUS_CODE).send({ message: 'Ошибка по умолчанию' });
-    });
+    .catch(next);
 };
