@@ -25,7 +25,12 @@ module.exports.createUser = (req, res, next) => {
         about,
         avatar
       })
-        .then((user) => res.status(CREATED_STATUS_CODE).send(user))
+        .then((user) => res.status(CREATED_STATUS_CODE).send({
+          email: user.email,
+          name: user.name,
+          about: user.about,
+          avatar: user.avatar
+        }))
         .catch(next);
     })
     .catch(next);
