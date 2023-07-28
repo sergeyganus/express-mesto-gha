@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const { AuthenticationError } = require('../utils/errors');
+const AuthenticationError = require('../utils/errors/AuthenticationError');
 const { emailRegExp, urlRegExp } = require('../utils/regexps');
 
 const userSchema = mongoose.Schema({
@@ -27,7 +27,7 @@ const userSchema = mongoose.Schema({
   about: {
     type: String,
     maxlength: [30, 'Максимальная длина поля about - 30 символов'],
-    default: 'Исследователь океана'
+    default: 'Исследователь'
   },
   avatar: {
     type: String,

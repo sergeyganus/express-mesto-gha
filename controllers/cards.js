@@ -1,7 +1,7 @@
-const { AuthenticationError } = require('../utils/errors');
 const {
   OK_STATUS_CODE,
-  CREATED_STATUS_CODE
+  CREATED_STATUS_CODE,
+  FORBIDDEN_ERROR_STATUS_CODE
 } = require('../utils/statusCodes');
 const Card = require('../models/card');
 
@@ -31,7 +31,7 @@ module.exports.deleteCard = (req, res, next) => {
           })
           .catch(next);
       } else {
-        throw new AuthenticationError('У вас недостаточно прав, чтобы удалить карточку с указанным _id');
+        res.status(FORBIDDEN_ERROR_STATUS_CODE).send({ message: 'У вас недостаточно прав, чтобы удалить карточку с указанным _id' });
       }
     })
     .catch(next);

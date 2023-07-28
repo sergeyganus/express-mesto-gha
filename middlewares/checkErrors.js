@@ -3,7 +3,7 @@ const {
   CastError,
   ValidationError
 } = require('mongoose').Error;
-const { AuthenticationError } = require('../utils/errors');
+const AuthenticationError = require('../utils/errors/AuthenticationError');
 const {
   BAD_REQUEST_STATUS_CODE,
   AUTHENTICATION_ERROR_STATUS_CODE,
