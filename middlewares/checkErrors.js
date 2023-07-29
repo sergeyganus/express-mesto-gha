@@ -5,6 +5,7 @@ const {
 } = require('mongoose').Error;
 const AuthenticationError = require('../errors/AuthenticationError');
 const ForbiddenError = require('../errors/ForbiddenError');
+const DuplicationError = require('../errors/DuplicationError');
 const {
   BAD_REQUEST_STATUS_CODE,
   AUTHENTICATION_ERROR_STATUS_CODE,
@@ -27,20 +28,20 @@ module.exports = (err, req, res, next) => {
     return;
   }
 
+  if (err instanceof DuplicationError) {
+    res.status(DUPLICATION_ERROR_STATUS_CODE).send({ message: err.message });
+
+    return;
+  }
+
   if (err instanceof DocumentNotFoundError) {
-    res.status(RESOURCE_NOT_FOUND_STATUS_CODE).send({ message: 'Сущность с указанным _id не найдена' });
+    res.status(RESOURCE_NOT_FOUND_STATUS_CODE).send({ message: 'Запрошенный ресурс не найден' });
 
     return;
   }
 
   if (err instanceof CastError) {
     res.status(BAD_REQUEST_STATUS_CODE).send({ message: 'В запросе переданы некорректные данные' });
-
-    return;
-  }
-
-  if (err.code === 11000) {
-    res.status(DUPLICATION_ERROR_STATUS_CODE).send({ message: 'Пользователь с данным email уже существует' });
 
     return;
   }

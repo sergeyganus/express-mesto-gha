@@ -1,7 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const { errors } = require('celebrate');
+const checkErrors = require('./middlewares/checkErrors');
 const router = require('./routes/index');
-const { RESOURCE_NOT_FOUND_STATUS_CODE } = require('./utils/statusCodes');
 
 const { PORT = 3000 } = process.env;
 
@@ -13,9 +14,9 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb')
 
 app.use(express.json());
 app.use(router);
-app.use('*', (req, res) => {
-  res.status(RESOURCE_NOT_FOUND_STATUS_CODE).send({ message: 'Запрошенная страница не найдена' });
-});
+
+app.use(errors());
+app.use(checkErrors);
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);

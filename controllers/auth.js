@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const DuplicationError = require('../errors/DuplicationError');
 const {
   OK_STATUS_CODE,
   CREATED_STATUS_CODE
@@ -31,7 +32,13 @@ module.exports.createUser = (req, res, next) => {
           about: user.about,
           avatar: user.avatar
         }))
-        .catch(next);
+        .catch((err) => {
+          if (err.code === 11000) {
+            next(new DuplicationError('Пользователь с данным email уже существует'));
+          } else {
+            next(err);
+          }
+        });
     })
     .catch(next);
 };
