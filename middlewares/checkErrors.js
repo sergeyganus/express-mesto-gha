@@ -3,10 +3,12 @@ const {
   CastError,
   ValidationError
 } = require('mongoose').Error;
-const AuthenticationError = require('../utils/errors/AuthenticationError');
+const AuthenticationError = require('../errors/AuthenticationError');
+const ForbiddenError = require('../errors/ForbiddenError');
 const {
   BAD_REQUEST_STATUS_CODE,
   AUTHENTICATION_ERROR_STATUS_CODE,
+  FORBIDDEN_ERROR_STATUS_CODE,
   RESOURCE_NOT_FOUND_STATUS_CODE,
   DUPLICATION_ERROR_STATUS_CODE,
   INTERNAL_SERVER_ERROR_STATUS_CODE
@@ -15,6 +17,14 @@ const {
 module.exports = (err, req, res, next) => {
   if (err instanceof AuthenticationError) {
     res.status(AUTHENTICATION_ERROR_STATUS_CODE).send({ message: err.message });
+
+    return;
+  }
+
+  if (err instanceof ForbiddenError) {
+    res.status(FORBIDDEN_ERROR_STATUS_CODE).send({ message: err.message });
+
+    return;
   }
 
   if (err instanceof DocumentNotFoundError) {
