@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const BadRequestError = require('../errors/BadRequestError');
 const DuplicationError = require('../errors/DuplicationError');
 const {
   OK_STATUS_CODE,
@@ -33,11 +34,19 @@ module.exports.createUser = (req, res, next) => {
           avatar: user.avatar
         }))
         .catch((err) => {
+          if (err.name === 'ValidationError') {
+            next(new BadRequestError('Произошла ошибка валидации переданных данных'));
+
+            return;
+          }
+
           if (err.code === 11000) {
             next(new DuplicationError('Пользователь с данным email уже существует'));
-          } else {
-            next(err);
+
+            return;
           }
+
+          next(err);
         });
     })
     .catch(next);

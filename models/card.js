@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const NotFoundError = require('../errors/NotFoundError');
 const { urlRegExp } = require('../utils/regexps');
 
 const cardSchema = mongoose.Schema({
@@ -34,7 +35,7 @@ const cardSchema = mongoose.Schema({
 
 cardSchema.statics.findCardById = function (cardId) {
   return this.findById(cardId)
-    .orFail()
+    .orFail(() => new NotFoundError('Карточки с указанным _id не существует'))
     .then((card) => card);
 };
 

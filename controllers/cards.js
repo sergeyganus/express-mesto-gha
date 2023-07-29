@@ -1,4 +1,6 @@
+const BadRequestError = require('../errors/BadRequestError');
 const ForbiddenError = require('../errors/ForbiddenError');
+const NotFoundError = require('../errors/NotFoundError');
 const {
   OK_STATUS_CODE,
   CREATED_STATUS_CODE
@@ -17,7 +19,13 @@ module.exports.createCard = (req, res, next) => {
 
   Card.create({ name, link, owner: ownerId })
     .then((card) => res.status(CREATED_STATUS_CODE).send(card))
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError('Произошла ошибка валидации переданных данных'));
+      } else {
+        next(err);
+      }
+    });
 };
 
 module.exports.deleteCard = (req, res, next) => {
@@ -43,7 +51,7 @@ module.exports.addCardLike = (req, res, next) => {
     { $addToSet: { likes: req.user._id } },
     { new: true }
   )
-    .orFail()
+    .orFail(() => new NotFoundError('Карточки с указанным _id не существует'))
     .then((card) => res.status(OK_STATUS_CODE).send(card))
     .catch(next);
 };
@@ -54,7 +62,7 @@ module.exports.deleteCardLike = (req, res, next) => {
     { $pull: { likes: req.user._id } },
     { new: true }
   )
-    .orFail()
+    .orFail(() => new NotFoundError('Карточки с указанным _id не существует'))
     .then((card) => res.status(OK_STATUS_CODE).send(card))
     .catch(next);
 };

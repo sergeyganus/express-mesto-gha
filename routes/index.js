@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { DocumentNotFoundError } = require('mongoose').Error;
+const NotFoundError = require('../errors/NotFoundError');
 const authRouter = require('./auth');
 const userRouter = require('./users');
 const cardRouter = require('./cards');
@@ -13,7 +13,7 @@ router.use('/users', userRouter);
 router.use('/cards', cardRouter);
 
 router.use('*', (req, res, next) => {
-  next(new DocumentNotFoundError('Запрошенный ресурс не найден'));
+  next(new NotFoundError('Запрошенный ресурс не найден'));
 });
 
 module.exports = router;
